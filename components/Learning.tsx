@@ -119,37 +119,37 @@ const Learning: React.FC<Props> = ({ onNavigate, mode, setMode, processes, polic
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Aprendizado</h2>
-        <div className="flex items-center bg-slate-850 border border-slate-700 rounded-lg p-1">
-          <button 
-            onClick={() => setMode('laboratory')}
-            className={`flex items-center justify-center gap-2 px-3 py-1 text-sm font-semibold rounded-md transition-colors ${mode === 'laboratory' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
-          >Laboratório</button>
-          <button 
-            onClick={() => setMode('learning')}
-            className={`flex items-center justify-center gap-2 px-3 py-1 text-sm font-semibold rounded-md transition-colors ${mode === 'learning' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
-          >Aprendizado</button>
-        </div>
-        <div className="flex items-center gap-2" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <div className="p-4 rounded-lg bg-slate-800 border border-slate-700">
-          <div className="text-sm md:text-base text-slate-400">Visão Geral</div>
-          <div className="mt-2 text-base text-slate-300">Este simulador apresenta conceitos de Sistemas Operacionais com foco em processos, memória, arquivos e escalonamento. Use os cartões abaixo para navegar e realizar experimentos guiados.</div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button onClick={() => onNavigate('processes')} className="px-2 py-1 rounded-md bg-slate-700 text-white">Ir para Processos</button>
-            <button onClick={() => onNavigate('memory')} className="px-2 py-1 rounded-md bg-slate-700 text-white">Ir para Memória</button>
-            <button onClick={() => onNavigate('files')} className="px-2 py-1 rounded-md bg-slate-700 text-white">Ir para Arquivos</button>
-            <button onClick={() => onNavigate('scheduler')} className="px-2 py-1 rounded-md bg-slate-700 text-white">Ir para Escalonador</button>
-          </div>
+        <div className="text-sm md:text-base text-slate-400 font-semibold">Visão Geral</div>
+        <div className="mt-2 text-base text-slate-300 leading-relaxed">Este simulador apresenta conceitos de Sistemas Operacionais com foco em processos, memória, arquivos e escalonamento. Use os cartões abaixo para navegar e realizar experimentos guiados.</div>
+        <ul className="mt-3 text-base text-slate-300 list-disc pl-5 space-y-1">
+          <li>Base: inspirado no Sistema Operacional Windows.</li>
+          <li>Algoritmo: escalonador preemptivo por prioridade com quantum, ajustes dinâmicos e Round Robin entre processos de mesma prioridade.</li>
+          <li>Vantagens: baixa latência em tarefas interativas; boa multitarefa; fairness entre processos de mesma prioridade via Round Robin.</li>
+          <li>Desvantagens: risco de starvation em baixa prioridade; maior overhead por trocas de contexto; ajuste de quantum/prioridade pode ser complexo.</li>
+          <li>Starvation: quando processos de baixa prioridade ficam sem CPU por longos períodos; mitigação por aging e fatia mínima garantida.</li>
+        </ul>
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          <button onClick={() => onNavigate('processes')} className="px-2 py-1 rounded-md bg-slate-700 text-white">Ir para Processos</button>
+          <button onClick={() => onNavigate('memory')} className="px-2 py-1 rounded-md bg-slate-700 text-white">Ir para Memória</button>
+          <button onClick={() => onNavigate('files')} className="px-2 py-1 rounded-md bg-slate-700 text-white">Ir para Arquivos</button>
+          <button onClick={() => onNavigate('scheduler')} className="px-2 py-1 rounded-md bg-slate-700 text-white">Ir para Escalonador</button>
         </div>
+      </div>
 
         <div className="p-4 rounded-lg bg-slate-800 border border-slate-700">
           <div className="text-sm md:text-base text-slate-400">Como usar</div>
           <ul className="mt-2 text-base text-slate-300 space-y-2">
-            <li>Escolha o modo no topo: Laboratório foca em ações; Aprendizado reforça conceitos.</li>
-            <li>Os indicadores do Dashboard mostram memória usada, CPU total e arquivos por tipo.</li>
-            <li>As abas detalham cada tema com ações seguras e feedback imediato.</li>
+            <li>Laboratório: pratique ações; Aprendizado: consolide conceitos com quiz.</li>
+            <li>Dashboard: memória usada, CPU total e arquivos por tipo em tempo real.</li>
+            <li>Processos: suspenda/retome para observar CPU zerar/restaurar; críticos são protegidos.</li>
+            <li>Memória: acompanhe donut e barra; use Limpar Memória para reduzir uso.</li>
+            <li>Arquivos: limpe temporários e logs; arquivos de sistema não podem ser excluídos.</li>
+            <li>Escalonador: troque política (Prioridade, FCFS, SJF, Round Robin) e ajuste o quantum; interprete a linha do tempo.</li>
+            <li>Para dados atualizados, mantenha a API local ativa.</li>
           </ul>
         </div>
       </div>
@@ -251,14 +251,20 @@ const Learning: React.FC<Props> = ({ onNavigate, mode, setMode, processes, polic
         </div>
       </div>
 
+      <div className="text-sm md:text-base text-slate-400">Laboratório</div>
       <div className="p-4 rounded-lg bg-slate-800 border border-slate-700">
         <div className="text-sm md:text-base text-slate-400">Atividades Guiadas</div>
         <ol className="mt-2 text-base text-slate-300 space-y-2 list-decimal pl-5">
-          <li>Crie processos, suspenda e retome. Compare CPU total no Dashboard.</li>
-          <li>Limpe memória e verifique o efeito no donut e na barra.</li>
-          <li>Remova arquivos temporários e observe os contadores por tipo.</li>
-          <li>Teste políticas de escalonamento e explique a diferença de seleção.</li>
-          <li>Discuta por que processos críticos são protegidos e como isso garante estabilidade.</li>
+          <li>Identifique o que é um processo: observe nome, estado e prioridade de 3 itens em Processos.</li>
+          <li>Suspenda um processo de usuário e confirme que a CPU zera; retome e verifique a restauração.</li>
+          <li>Classifique processos por prioridade e discuta como Alta, Normal e Baixa influenciam a seleção.</li>
+          <li>Localize onde aparece o percentual de memória usada (donut e barra) e explique o cálculo.</li>
+          <li>Execute Limpar Memória e observe total, usada e livre no Dashboard e na aba Memória.</li>
+          <li>Liste tipos de arquivos e contadores; tente excluir um arquivo de sistema e veja a proteção.</li>
+          <li>Compare políticas de escalonamento: FCFS por PID, SJF por menor CPU e Round Robin por quantum.</li>
+          <li>Ajuste o quantum e observe a alternância no Round Robin e a linha do tempo com cores por prioridade.</li>
+          <li>Explique por que processos críticos são protegidos e como isso contribui para a estabilidade.</li>
+          <li>Faça o quiz por tópico e, em seguida, repita as ações acima para reforçar as respostas corretas.</li>
         </ol>
       </div>
 
