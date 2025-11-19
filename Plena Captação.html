@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plena Captação - Sistema Inteligente de Prospecção</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #000000;
+            --secondary: #FF6B35;
+            --accent: #FF8C00;
+            --success: #00C853;
+            --warning: #FFB300;
+            --danger: #FF4444;
+            --info: #2196F3;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--primary);
+            color: white;
+            padding: 0;
+            position: fixed;
+            width: 280px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            padding: 30px 25px;
+            border-bottom: 1px solid rgba(255,107,53,0.3);
+            background: linear-gradient(135deg, var(--primary) 0%, #1a1a1a 100%);
+        }
+
+        .logo h1 {
+            font-size: 1.4em;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .logo p {
+            color: var(--secondary);
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .nav-item.active,
+        .nav-item:hover {
+            background: rgba(255,107,53,0.1);
+            border-left-color: var(--secondary);
+        }
+
+        .nav-item i {
+            width: 20px;
+            color: var(--secondary);
+            font-size: 1.1em;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 0;
+            width: calc(100vw - 280px);
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: var(--light);
+            padding: 12px 20px;
+            border-radius: 25px;
+            width: 400px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .search-bar:focus-within {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(255,107,53,0.1);
+        }
+
+        .search-bar input {
+            border: none;
+            background: none;
+            outline: none;
+            margin-left: 10px;
+            width: 100%;
+            font-size: 0.95em;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,107,53,0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--dark);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85em;
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 30px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard */
+        .dashboard-header {
+            margin-bottom: 30px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2em;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .dashboard-header p {
+            color: var(--gray);
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 4px solid var(--secondary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(255,107,53,0.1) 0%, rgba(255,107,53,0.05) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+            font-size: 1.5em;
+        }
+
+        .stat-info h3 {
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+
+        .stat-info p {
+            color: var(--gray);
+            font-size: 0.95em;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.3em;
+        }
+
+        /* AI Recommendations */
+        .ai-recommendations {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--info);
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .ai-header i {
+            color: var(--info);
+            font-size: 1.3em;
+        }
+
+        .ai-header h3 {
+            color: var(--primary);
+            font-size: 1.3em;
+        }
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .recommendation-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 3px solid var(--info);
+        }
+
+        .recommendation-card h4 {
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .recommendation-card p {
+            color: var(--gray);
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        /* Leads Grid */
+        .leads-section .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h2 {
+            font-size: 1.8em;
+            color: var(--primary);
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .filter-btn.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        .leads-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+        }
+
+        .lead-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lead-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--secondary);
+        }
+
+        .lead-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: var(--secondary);
+        }
+
+        .lead-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .lead-name {
+            font-weight: 700;
+            font-size: 1.2em;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .lead-niche {
+            background: rgba(255,107,53,0.1);
+            color: var(--secondary);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .lead-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 700;
+            color: white;
+        }
+
+        .badge-high { background: var(--success); }
+        .badge-medium { background: var(--warning); }
+        .badge-critical { background: var(--danger); }
+
+        .lead-info {
+            margin: 20px 0;
+            font-size: 0.95em;
+            color: var(--gray);
+        }
+
+        .lead-info div {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: var(--gray);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .lead-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 25px;
+            background: var(--primary);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.4em;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(255,107,53,0.1);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .timeline {
+            margin-top: 25px;
+        }
+
+        .timeline h4 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1.1em;
+        }
+
+        .timeline-item {
+            padding: 15px;
+            border-left: 3px solid var(--secondary);
+            margin-bottom: 12px;
+            background: var(--light);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .timeline-date {
+            font-size: 0.85em;
+            color: var(--gray);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 25px;
+            margin-top: 50px;
+        }
+
+        .footer p {
+            margin-bottom: 8px;
+        }
+
+        .footer a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            .leads-grid {
+                grid-template-columns: 1fr;
+            }
+            .search-bar {
+                width: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-area {
+                padding: 20px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            .search-bar {
+                width: 100%;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>Plena Captação</h1>
+                <p>Sistema Inteligente de Prospecção</p>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-target="dashboard">
+                    <i class="fas fa-chart-pie"></i>
+                    Dashboard Geral
+                </li>
+                <li class="nav-item" data-target="leads">
+                    <i class="fas fa-users"></i>
+                    Todos os Leads
+                </li>
+                <li class="nav-item" data-target="critical">
+                    <i class="fas fa-fire"></i>
+                    Leads Críticos
+                </li>
+                <li class="nav-item" data-target="high-potential">
+                    <i class="fas fa-rocket"></i>
+                    Alto Potencial
+                </li>
+                <li class="nav-item" data-target="professionals">
+                    <i class="fas fa-user-tie"></i>
+                    Profissionais
+                </li>
+                <li class="nav-item" data-target="services">
+                    <i class="fas fa-tools"></i>
+                    Serviços
+                </li>
+                <li class="nav-item" data-target="commerce">
+                    <i class="fas fa-store"></i>
+                    Comércio
+                </li>
+                <li class="nav-item" data-target="strategies">
+                    <i class="fas fa-chess-knight"></i>
+                    Estratégias
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar leads, nichos, endereços...">
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openAddLeadModal()">
+                        <i class="fas fa-plus"></i> Novo Lead
+                    </button>
+                    <button class="btn btn-outline" onclick="showAIAssistant()">
+                        <i class="fas fa-robot"></i> Assistente IA
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- Dashboard -->
+                <div id="dashboard" class="section active">
+                    <div class="dashboard-header">
+                        <h1>Dashboard de Prospecção</h1>
+                        <p>Visão geral da sua carteira de leads em São José dos Campos</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalLeads">24</h3>
+                                <p>Leads Ativos</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="highPotential">18</h3>
+                                <p>Alto Potencial</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="criticalLeads">12</h3>
+                                <p>Críticos Digitais</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="urgentLeads">8</h3>
+                                <p>Contatos Urgentes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h3>Distribuição por Potencial</h3>
+                            <canvas id="potentialChart" height="250"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Leads por Nicho</h3>
+                            <canvas id="nicheChart" height="250"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="ai-recommendations">
+                        <div class="ai-header">
+                            <i class="fas fa-robot"></i>
+                            <h3>Recomendações do Assistente IA</h3>
+                        </div>
+                        <div class="recommendations-grid">
+                            <div class="recommendation-card">
+                                <h4>🎯 Prioridade do Dia</h4>
+                                <p>Foque em <strong>Dra. Fernanda Silva</strong> - Odontologia com 12 anos de mercado e zero presença digital</p>
+                            </div>
+                            <div class="recommendation-card">
+                                <h4>💡 Abordagem Estratégica</h4>
+                                <p>Use o argumento: "Aumente em 40% seus agendamentos com um site profissional"</p>
+                            </div>
+                            <div class="recommendation-card">
+                                <h4>🕒 Timing Ideal</h4>
+                                <p>Contate profissionais liberais entre <strong>14h-16h</strong> - 65% de taxa de sucesso</p>
+                            </div>
+                            <div class="recommendation-card">
+                                <h4>📊 Oportunidade</h4>
+                                <p><strong>8 leads</strong> nunca foram contactados - Potencial imediato de conversão</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leads Section -->
+                <div id="leads" class="section">
+                    <div class="section-header">
+                        <h2>Todos os Leads</h2>
+                        <div class="filters">
+                            <button class="filter-btn active" data-filter="all">Todos</button>
+                            <button class="filter-btn" data-filter="critical">Críticos</button>
+                            <button class="filter-btn" data-filter="high">Alto Potencial</button>
+                            <button class="filter-btn" data-filter="never-contacted">Não Contactados</button>
+                        </div>
+                    </div>
+                    <div class="leads-grid" id="leadsContainer">
+                        <!-- Leads will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Strategies Section -->
+                <div id="strategies" class="section">
+                    <div class="section-header">
+                        <h2>Estratégias de Prospecção</h2>
+                    </div>
+                    <div class="ai-recommendations">
+                        <div class="recommendations-grid">
+                            <div class="recommendation-card">
+                                <h4>📞 Script de Ligação</h4>
+                                <p>"Olá, sou [Seu Nome] da Plena Informática. Vi que seu negócio tem ótima reputação, mas percebi que muitos clientes podem não estar encontrando você online. Gostaria de mostrar como um site profissional pode trazer mais clientes qualificados?"</p>
+                            </div>
+                            <div class="recommendation-card">
+                                <h4>✉️ Follow-up por WhatsApp</h4>
+                                <p>"Bom dia! Segue o exemplo do site que criamos para um negócio similar ao seu. Em 2 meses, eles aumentaram os agendamentos em 60%. Podemos conversar sobre como aplicar isso no seu negócio?"</p>
+                            </div>
+                            <div class="recommendation-card">
+                                <h4>🎯 Argumentos por Nicho</h4>
+                                <p><strong>Serviços:</strong> "Agendamentos 24h" | <strong>Comércio:</strong> "Vitrine online sempre aberta" | <strong>Profissionais:</strong> "Credibilidade e portfólio digital"</p>
+                            </div>
+                            <div class="recommendation-card">
+                                <h4>📈 Métricas de Sucesso</h4>
+                                <p>Taxa de conversão: 35% | Ticket médio: R$ 2.500 | Tempo de desenvolvimento: 15 dias | ROI médio: 3 meses</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lead Details Modal -->
+    <div class="modal" id="leadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Detalhes do Lead</h3>
+                <button class="btn btn-outline" onclick="closeModal()" style="color: white; border-color: white;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Observações do Contato</label>
+                    <textarea class="form-control" id="contactNotes" placeholder="Registre observações, andamentos, próximos passos..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Status do Contato</label>
+                    <select class="form-control" id="contactStatus">
+                        <option value="pending">Pendente</option>
+                        <option value="contacted">Contactado</option>
+                        <option value="meeting_scheduled">Reunião Agendada</option>
+                        <option value="proposal_sent">Proposta Enviada</option>
+                        <option value="negotiation">Em Negociação</option>
+                        <option value="closed_won">Fechado - Ganho</option>
+                        <option value="closed_lost">Fechado - Perdido</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Próximo Follow-up</label>
+                    <input type="datetime-local" class="form-control" id="nextFollowup">
+                </div>
+                <button class="btn btn-primary" onclick="saveLeadDetails()">
+                    <i class="fas fa-save"></i> Salvar Alterações
+                </button>
+
+                <div class="timeline" id="timeline">
+                    <h4>Histórico de Contato</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Lead Modal -->
+    <div class="modal" id="addLeadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cadastrar Novo Lead</h3>
+                <button class="btn btn-outline" onclick="closeAddLeadModal()" style="color: white; border-color: white;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nome do Estabelecimento *</label>
+                    <input type="text" class="form-control" id="newLeadName" placeholder="Ex: Padaria São José">
+                </div>
+                <div class="form-group">
+                    <label>Nicho *</label>
+                    <select class="form-control" id="newLeadNiche">
+                        <option value="">Selecione um nicho</option>
+                        <option value="Profissionais Liberais">Profissionais Liberais</option>
+                        <option value="Serviços Especializados">Serviços Especializados</option>
+                        <option value="Comércio Local">Comércio Local</option>
+                        <option value="Saúde e Bem-estar">Saúde e Bem-estar</option>
+                        <option value="Alimentação">Alimentação</option>
+                        <option value="Beleza e Estética">Beleza e Estética</option>
+                        <option value="Educação">Educação</option>
+                        <option value="Construção">Construção Civil</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Endereço *</label>
+                    <input type="text" class="form-control" id="newLeadAddress" placeholder="Ex: Rua das Flores, 123 - Centro, São José dos Campos">
+                </div>
+                <div class="form-group">
+                    <label>Telefone *</label>
+                    <input type="text" class="form-control" id="newLeadContact" placeholder="Ex: (12) 3456-7890">
+                </div>
+                <div class="form-group">
+                    <label>Observações Iniciais</label>
+                    <textarea class="form-control" id="newLeadNotes" placeholder="Informações relevantes sobre o lead, situação digital atual, potencial observado..."></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="addNewLead()">
+                    <i class="fas fa-plus"></i> Cadastrar Lead
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>Desenvolvido por <strong>Plena Informática</strong> - Todos os direitos reservados</p>
+        <p><a href="https://www.plenainformatica.com.br" target="_blank">www.plenainformatica.com.br</a></p>
+    </div>
+
+    <script>
+        // Dados completos dos leads
+        let leads = [
+            {
+                id: 1,
+                name: "DRA. FERNANDA SILVA - ODONTOLOGIA",
+                niche: "Odontologia Geral",
+                address: "Rua das Flores, 123 - Centro, São José dos Campos",
+                contact: "(12) 3923-4578",
+                potential: 5,
+                status: "critical",
+                category: "Profissionais Liberais",
+                conversionProbability: 92,
+                notes: "12 anos de mercado, excelente reputação, ZERO presença digital. Clientes apenas por indicação. Perde agendamentos online.",
+                lastContact: "Nunca",
+                nextAction: "Contato urgente - Alto potencial",
+                contactHistory: [],
+                contactStatus: "pending",
+                value: "Alto"
+            },
+            {
+                id: 2,
+                name: "CLÍNICA BELEZA PURA",
+                niche: "Estética Facial",
+                address: "Rua XV de Novembro, 789 - Vila Ema, São José dos Campos",
+                contact: "(12) 3934-2211",
+                potential: 5,
+                status: "critical",
+                category: "Beleza e Estética",
+                conversionProbability: 88,
+                notes: "Site de 2018 desatualizado, não responsivo. Sem redes sociais ativas. Perde clientes mais jovens que buscam online.",
+                lastContact: "3 meses atrás",
+                nextAction: "Apresentação presencial com portfólio",
+                contactHistory: [],
+                contactStatus: "pending",
+                value: "Alto"
+            },
+            {
+                id: 3,
+                name: "MECÂNICA SÃO JOSÉ",
+                niche: "Oficina Mecânica",
+                address: "Av. Heitor Villa Lobos, 567 - Campos de São José",
+                contact: "(12) 3928-3344",
+                potential: 4,
+                status: "high",
+                category: "Serviços Especializados",
+                conversionProbability: 76,
+                notes: "Google Meu Negócio incompleto, sem fotos. Atende emergências mas não é encontrado online. Perde clientes novos.",
+                lastContact: "1 mês atrás",
+                nextAction: "Demonstração sistema agendamento",
+                contactHistory: [],
+                contactStatus: "pending",
+                value: "Médio-Alto"
+            },
+            {
+                id: 4,
+                name: "DR. ROBERTO MENDES - ADVOGADO",
+                niche: "Direito Civil",
+                address: "Av. São João, 456 - Santana, São José dos Campos",
+                contact: "(12) 3941-6677",
+                potential: 4,
+                status: "critical",
+                category: "Profissionais Liberais",
+                conversionProbability: 81,
+                notes: "Escritório tradicional, clientes apenas por indicação. Não se promove online. Perde casos novos.",
+                lastContact: "Nunca",
+                nextAction: "Primeiro contato com cases jurídicos",
+                contactHistory: [],
+                contactStatus: "pending",
+                value: "Alto"
+            },
+            {
+                id: 5,
+                name: "PADARIA SÃO JOSÉ",
+                niche: "Padaria e Confeitaria",
+                address: "Rua Rio de Janeiro, 901 - Campos de São José",
+                contact: "(12) 3925-8899",
+                potential: 4,
+                status: "high",
+                category: "Alimentação",
+                conversionProbability: 69,
+                notes: "Cardápio invisível online. Delivery manual por telefone. Perde pedidos espontâneos e jovens.",
+                lastContact: "2 semanas atrás",
+                nextAction: "Apresentação cardápio digital",
+                contactHistory: [],
+                contactStatus: "pending",
+                value: "Médio"
+            },
+            {
+                id: 6,
+                name: "ELETRICISTA CARLOS",
+                niche: "Instalações Elétricas",
+                address: "Rua das Acácias, 890 - Vila Adyana",
+                contact: "(12) 3937-1122",
+                potential: 4,
+                status: "high",
+                category: "Serviços Especializados",
+                conversionProbability: 72,
+                notes: "15 anos de experiência, só trabalha por indicação. Não atende emergências noturnas. Sem avaliações online.",
+                lastContact: "1 semana atrás",
+                nextAction: "Proposta perfil profissional",
+                contactHistory: [],
+                contactStatus: "pending",
+                value: "Médio"
+            },
+            {
+                id: 7,
+                name: "ACADEMIA VIDA SAUDÁVEL",
+                niche: "Academia e Fitness",
+                address: "Rua Bahia, 901 - Vila Adyana",
+                contact: "(12) 3926-5544",
+                potential: 4,
+                status: "high",
+                category: "Saúde e Bem-estar",
+                conversionProbability: 75,
+                notes: "Google Meu Negócio sem horários, sem redes sociais ativas. Perde captação de novos alunos.",
+                lastContact: "3 semanas atrás",
+                nextAction: "Demonstração sistema agendamento",
+                contactHistory: [],
+                contactStatus: "pending",
+                value: "Médio-Alto"
+            },
+            {
+                id: 8,
+                name: "PET SHOP AMIGO ANIMAL",
+                niche: "Pet Shop",
+                address: "Rua das Acácias, 456 - Vila Ema",
+                contact: "(12) 3935-9988",
+                potential: 4,
+                status: "high",
+                category: "Comércio Local",
+                conversionProbability: 71,
+                notes: "Setor em crescimento, sem presença digital. Perde vendas de produtos e agendamentos de banho/tosa.",
+                lastContact: "1 mês atrás",
+                nextAction: "Proposta e-commerce básico",
+                contactHistory: [],
+                contactStatus: "pending",
+                value: "Médio"
+            }
+        ];
+
+        // Variáveis globais
+        let currentLeadId = null;
+        let currentFilter = 'all';
+
+        // Inicialização do sistema
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSystem();
+        });
+
+        function initializeSystem() {
+            setupNavigation();
+            setupFilters();
+            setupSearch();
+            initializeCharts();
+            renderDashboardLeads();
+            updateStats();
+        }
+
+        // Configuração de navegação
+        function setupNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active de todos os itens
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    // Adiciona active no item clicado
+                    this.classList.add('active');
+                    
+                    // Esconde todas as seções
+                    document.querySelectorAll('.section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    
+                    // Mostra a seção alvo
+                    const target = this.getAttribute('data-target');
+                    const targetSection = document.getElementById(target);
+                    if (targetSection) {
+                        targetSection.classList.add('active');
+                        
+                        // Atualiza o conteúdo baseado na seção
+                        switch(target) {
+                            case 'dashboard':
+                                renderDashboardLeads();
+                                break;
+                            case 'leads':
+                                filterLeads('all');
+                                break;
+                            case 'critical':
+                                filterLeads('critical');
+                                break;
+                            case 'high-potential':
+                                filterLeads('high');
+                                break;
+                            case 'professionals':
+                                filterLeadsByCategory('Profissionais Liberais');
+                                break;
+                            case 'services':
+                                filterLeadsByCategory('Serviços Especializados');
+                                break;
+                            case 'commerce':
+                                filterLeadsByCategory('Comércio Local');
+                                break;
+                        }
+                    }
+                });
+            });
+        }
+
+        // Configuração de filtros
+        function setupFilters() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const filter = this.getAttribute('data-filter');
+                    currentFilter = filter;
+                    filterLeads(filter);
+                });
+            });
+        }
+
+        // Filtragem de leads
+        function filterLeads(filter) {
+            let filteredLeads = leads;
+            
+            switch(filter) {
+                case 'critical':
+                    filteredLeads = leads.filter(lead => lead.status === 'critical');
+                    break;
+                case 'high':
+                    filteredLeads = leads.filter(lead => lead.potential >= 4);
+                    break;
+                case 'never-contacted':
+                    filteredLeads = leads.filter(lead => lead.lastContact === 'Nunca');
+                    break;
+                // 'all' mantém todos os leads
+            }
+            
+            renderLeads(filteredLeads);
+        }
+
+        function filterLeadsByCategory(category) {
+            const filteredLeads = leads.filter(lead => lead.category === category);
+            renderLeads(filteredLeads);
+        }
+
+        // Configuração de busca
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function(e) {
+                const term = e.target.value.toLowerCase().trim();
+                if (term.length === 0) {
+                    filterLeads(currentFilter);
+                    return;
+                }
+                
+                const filtered = leads.filter(lead => 
+                    lead.name.toLowerCase().includes(term) ||
+                    lead.niche.toLowerCase().includes(term) ||
+                    lead.address.toLowerCase().includes(term) ||
+                    lead.category.toLowerCase().includes(term)
+                );
+                renderLeads(filtered);
+            });
+        }
+
+        // Inicialização de gráficos
+        function initializeCharts() {
+            // Gráfico de distribuição por potencial
+            const potentialCtx = document.getElementById('potentialChart').getContext('2d');
+            new Chart(potentialCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Alto (5⭐)', 'Médio-Alto (4⭐)', 'Médio (3⭐)', 'Baixo (1-2⭐)'],
+                    datasets: [{
+                        data: [2, 6, 0, 0],
+                        backgroundColor: ['#00C853', '#FFB300', '#FF4444', '#6c757d'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de leads por nicho
+            const nicheCtx = document.getElementById('nicheChart').getContext('2d');
+            new Chart(nicheCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Profissionais', 'Serviços', 'Comércio', 'Saúde', 'Beleza', 'Alimentação'],
+                    datasets: [{
+                        data: [2, 2, 1, 1, 1, 1],
+                        backgroundColor: [
+                            '#FF6B35', '#2196F3', '#00C853', '#FFB300', '#9C27B0', '#607D8B'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Atualização de estatísticas
+        function updateStats() {
+            document.getElementById('totalLeads').textContent = leads.length;
+            document.getElementById('highPotential').textContent = leads.filter(l => l.potential >= 4).length;
+            document.getElementById('criticalLeads').textContent = leads.filter(l => l.status === 'critical').length;
+            document.getElementById('urgentLeads').textContent = leads.filter(l => l.lastContact === 'Nunca').length;
+        }
+
+        // Renderização de leads no dashboard
+        function renderDashboardLeads() {
+            const featuredLeads = leads.slice(0, 4);
+            renderLeads(featuredLeads);
+        }
+
+        // Renderização geral de leads
+        function renderLeads(leadsToRender) {
+            const container = document.getElementById('leadsContainer');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            if (leadsToRender.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #6c757d;">
+                        <i class="fas fa-search" style="font-size: 3em; margin-bottom: 20px; opacity: 0.5;"></i>
+                        <h3>Nenhum lead encontrado</h3>
+                        <p>Tente ajustar os filtros ou termos de busca</p>
+                    </div>
+                `;
+                return;
+            }
+
+            leadsToRender.forEach(lead => {
+                const badgeClass = lead.potential >= 4.5 ? 'badge-high' : 
+                                 lead.potential >= 3.5 ? 'badge-medium' : 'badge-critical';
+
+                const leadCard = document.createElement('div');
+                leadCard.className = 'lead-card';
+                leadCard.innerHTML = `
+                    <div class="lead-header">
+                        <div>
+                            <div class="lead-name">${lead.name}</div>
+                            <span class="lead-niche">${lead.niche}</span>
+                        </div>
+                        <span class="lead-badge ${badgeClass}">${lead.potential}⭐</span>
+                    </div>
+                    
+                    <div class="lead-info">
+                        <div><i class="fas fa-phone"></i> ${lead.contact}</div>
+                        <div><i class="fas fa-map-marker-alt"></i> ${lead.address}</div>
+                        <div><i class="fas fa-clock"></i> Último contato: ${lead.lastContact}</div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Probabilidade de Conversão</span>
+                            <span>${lead.conversionProbability}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${lead.conversionProbability}%"></div>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 0.9em; color: #6c757d; margin: 15px 0;">
+                        <strong>Próxima ação:</strong> ${lead.nextAction}
+                    </div>
+
+                    <div class="lead-actions">
+                        <button class="btn btn-primary btn-sm" onclick="contactLead(${lead.id})">
+                            <i class="fas fa-phone"></i> Ligar Agora
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="openLeadDetails(${lead.id})">
+                            <i class="fas fa-edit"></i> Gerenciar
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="viewStrategy(${lead.id})">
+                            <i class="fas fa-chess-knight"></i> Estratégia
+                        </button>
+                    </div>
+                `;
+                container.appendChild(leadCard);
+            });
+        }
+
+        // Funções do modal de detalhes
+        function openLeadDetails(leadId) {
+            currentLeadId = leadId;
+            const lead = leads.find(l => l.id === leadId);
+            
+            document.getElementById('modalTitle').textContent = `Gerenciar - ${lead.name}`;
+            document.getElementById('contactNotes').value = lead.notes || '';
+            document.getElementById('contactStatus').value = lead.contactStatus || 'pending';
+            document.getElementById('nextFollowup').value = lead.nextFollowup || '';
+            
+            // Atualizar timeline
+            updateTimeline(lead);
+            
+            document.getElementById('leadModal').style.display = 'flex';
+        }
+
+        function updateTimeline(lead) {
+            const timeline = document.getElementById('timeline');
+            timeline.innerHTML = '<h4>Histórico de Contato</h4>';
+            
+            if (lead.contactHistory && lead.contactHistory.length > 0) {
+                lead.contactHistory.forEach(entry => {
+                    const item = document.createElement('div');
+                    item.className = 'timeline-item';
+                    item.innerHTML = `
+                        <div class="timeline-date">${entry.date}</div>
+                        <div>${entry.notes}</div>
+                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 5px;">
+                            Status: ${getStatusText(entry.status)}
+                        </div>
+                    `;
+                    timeline.appendChild(item);
+                });
+            } else {
+                timeline.innerHTML += `
+                    <div style="text-align: center; color: #6c757d; padding: 20px;">
+                        <i class="fas fa-history" style="font-size: 2em; margin-bottom: 10px; opacity: 0.5;"></i>
+                        <p>Nenhum contato registrado ainda</p>
+                    </div>
+                `;
+            }
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'Pendente',
+                'contacted': 'Contactado',
+                'meeting_scheduled': 'Reunião Agendada',
+                'proposal_sent': 'Proposta Enviada',
+                'negotiation': 'Em Negociação',
+                'closed_won': 'Fechado - Ganho',
+                'closed_lost': 'Fechado - Perdido'
+            };
+            return statusMap[status] || status;
+        }
+
+        function closeModal() {
+            document.getElementById('leadModal').style.display = 'none';
+            currentLeadId = null;
+        }
+
+        function saveLeadDetails() {
+            if (!currentLeadId) return;
+            
+            const lead = leads.find(l => l.id === currentLeadId);
+            const notes = document.getElementById('contactNotes').value.trim();
+            const status = document.getElementById('contactStatus').value;
+            const nextFollowup = document.getElementById('nextFollowup').value;
+            
+            // Atualizar dados do lead
+            if (notes) {
+                lead.contactHistory.unshift({
+                    date: new Date().toLocaleString('pt-BR'),
+                    notes: notes,
+                    status: status
+                });
+                lead.lastContact = 'Hoje';
+                lead.notes = notes;
+                lead.contactStatus = status;
+                lead.nextFollowup = nextFollowup;
+            }
+            
+            showNotification('Alterações salvas com sucesso!', 'success');
+            closeModal();
+            updateStats();
+            renderLeads(leads);
+        }
+
+        // Funções do modal de novo lead
+        function openAddLeadModal() {
+            document.getElementById('addLeadModal').style.display = 'flex';
+        }
+
+        function closeAddLeadModal() {
+            document.getElementById('addLeadModal').style.display = 'none';
+            // Reset do formulário
+            document.getElementById('newLeadName').value = '';
+            document.getElementById('newLeadNiche').value = '';
+            document.getElementById('newLeadAddress').value = '';
+            document.getElementById('newLeadContact').value = '';
+            document.getElementById('newLeadNotes').value = '';
+        }
+
+        function addNewLead() {
+            const name = document.getElementById('newLeadName').value.trim();
+            const niche = document.getElementById('newLeadNiche').value;
+            const address = document.getElementById('newLeadAddress').value.trim();
+            const contact = document.getElementById('newLeadContact').value.trim();
+            const notes = document.getElementById('newLeadNotes').value.trim();
+            
+            if (!name || !niche || !address || !contact) {
+                showNotification('Por favor, preencha todos os campos obrigatórios.', 'error');
+                return;
+            }
+            
+            const newLead = {
+                id: Math.max(...leads.map(l => l.id)) + 1,
+                name: name.toUpperCase(),
+                niche: niche,
+                address: address,
+                contact: contact,
+                potential: 3,
+                status: 'high',
+                category: niche,
+                conversionProbability: 55,
+                notes: notes,
+                lastContact: 'Nunca',
+                nextAction: 'Primeiro contato',
+                contactHistory: [],
+                contactStatus: 'pending',
+                value: 'Médio'
+            };
+            
+            leads.push(newLead);
+            closeAddLeadModal();
+            updateStats();
+            renderLeads(leads);
+            showNotification('Lead cadastrado com sucesso!', 'success');
+            
+            // Mostrar recomendação da IA para o novo lead
+            showAIRecommendation(newLead);
+        }
+
+        // Funções de ação
+        function contactLead(leadId) {
+            const lead = leads.find(l => l.id === leadId);
+            const approach = getContactApproach(lead.category);
+            
+            alert(`📞 LIGAÇÃO PARA: ${lead.name}\n\n📱 Telefone: ${lead.contact}\n\n🎯 ABORDAGEM SUGERIDA:\n${approach}\n\n💡 DICA: ${getContactTip(lead.category)}`);
+        }
+
+        function viewStrategy(leadId) {
+            const lead = leads.find(l => l.id === leadId);
+            const strategy = getStrategyForLead(lead);
+            
+            alert(`🎯 ESTRATÉGIA PARA: ${lead.name}\n\n${strategy}`);
+        }
+
+        function showAIAssistant() {
+            const criticalLeads = leads.filter(l => l.status === 'critical');
+            const neverContacted = leads.filter(l => l.lastContact === 'Nunca');
+            
+            alert(`🤖 ASSISTENTE DE IA - PLENA CAPTAÇÃO\n\n📊 RESUMO:\n• ${criticalLeads.length} leads críticos precisam de atenção imediata\n• ${neverContacted.length} leads nunca foram contactados\n• Taxa de conversão potencial: 42%\n\n🎯 AÇÕES RECOMENDADAS:\n1. Contatar Dra. Fernanda Silva - Prioridade máxima\n2. Seguir com Clínica Beleza Pura - Alto potencial\n3. Agendar reuniões com os 6 leads de alto potencial\n\n💡 ESTRATÉGIA:\nUse a abordagem "aumento de agendamentos online" para serviços\nFoque em "credibilidade digital" para profissionais`);
+        }
+
+        // Funções auxiliares
+        function getContactApproach(category) {
+            const approaches = {
+                'Profissionais Liberais': '"Bom dia, sou da Plena Informática. Vi que seu consultório tem excelente reputação, mas percebi que muitos pacientes podem não estar encontrando você online. Gostaria de mostrar como um site profissional pode aumentar seus agendamentos em até 40%?"',
+                'Serviços Especializados': '"Olá, somos especialistas em criar sites para serviços como o seu. Notamos que você atende emergências, mas muitos clientes não conseguem encontrar seu contato rápido online. Podemos resolver isso com um site otimizado para celular?"',
+                'Comércio Local': '"Boa tarde! Seus produtos são excelentes, mas imagine ter uma vitrine aberta 24h onde novos clientes podem encontrar e comprar a qualquer hora? É isso que podemos oferecer."',
+                'Saúde e Bem-estar': '"Olá, notamos que sua academia/clínica tem ótima estrutura, mas muitos potenciais alunos/pacientes buscam online primeiro. Podemos aumentar sua visibilidade com um site moderno e sistema de agendamento?"',
+                'Beleza e Estética': '"Bom dia! Seu trabalho é incrível, mas está invisível para quem busca online. Que tal mostrar seus resultados em um portfólio digital que atraia novos clientes 24h por dia?"',
+                'Alimentação': '"Olá, seu estabelecimento tem ótima qualidade, mas está perdendo pedidos por não ter cardápio online. Podemos criar um site com cardápio digital e integração com delivery?"'
+            };
+            return approaches[category] || '"Olá, somos a Plena Informática e ajudamos negócios como o seu a aumentar sua presença digital e atrair mais clientes. Podemos conversar sobre como aplicar isso no seu negócio?"';
+        }
+
+        function getContactTip(category) {
+            const tips = {
+                'Profissionais Liberais': 'Foque no benefício de agendamentos online e credibilidade',
+                'Serviços Especializados': 'Destaque a praticidade do agendamento 24h',
+                'Comércio Local': 'Mencione as vendas perdidas por não ter site',
+                'Saúde e Bem-estar': 'Aborde a captação de novos alunos/pacientes',
+                'Beleza e Estética': 'Mostre o poder do portfólio visual online',
+                'Alimentação': 'Destaque a conveniência do pedido online'
+            };
+            return tips[category] || 'Destaque que 80% dos clientes buscam serviços online primeiro';
+        }
+
+        function getStrategyForLead(lead) {
+            return `💼 NEGÓCIO: ${lead.niche}\n⭐ POTENCIAL: ${lead.potential}/5\n📈 PROBABILIDADE: ${lead.conversionProbability}%\n\n🎯 ABORDAGEM PRINCIPAL:\n${getContactApproach(lead.category)}\n\n💡 ARGUMENTOS-CHAVE:\n${getKeyArguments(lead.category)}\n\n⏰ TIMING IDEAL:\n${getBestTiming(lead.category)}\n\n💰 PROPOSTA SUGERIDA:\nSite profissional + Landing page + SEO básico\nInvestimento: R$ 2.500 à vista ou 3x de R$ 900\nROI estimado: 2-3 meses`;
+        }
+
+        function getKeyArguments(category) {
+            const argumentsMap = {
+                'Profissionais Liberais': '• Agendamentos online 24h\n• Credibilidade e portfólio profissional\n• Atração de novos pacientes/clientes\n• Diferencial competitivo',
+                'Serviços Especializados': '• Encontrabilidade online\n• Agendamento simplificado\n• Avaliações e referências\n• Atendimento emergencial visível',
+                'Comércio Local': '• Vitrine online sempre aberta\n• Vendas fora do horário comercial\n• Catálogo de produtos\n• Fidelização de clientes',
+                'Saúde e Bem-estar': '• Captação de novos alunos/pacientes\n• Agendamento de aulas/consultas\n• Comunicação direta\n• Diferenciação no mercado',
+                'Beleza e Estética': '• Portfólio de trabalhos\n• Agendamento online\n• Fidelização de clientes\n• Atração pelo visual',
+                'Alimentação': '• Cardápio digital\n• Pedidos online\n• Delivery integrado\n• Fidelização'
+            };
+            return argumentsMap[category] || '• Aumento da visibilidade\n• Mais clientes qualificados\n• Diferencial competitivo\n• Crescimento do negócio';
+        }
+
+        function getBestTiming(category) {
+            const timingMap = {
+                'Profissionais Liberais': 'Segunda a sexta, 14h-16h',
+                'Serviços Especializados': 'Terça a quinta, 9h-11h',
+                'Comércio Local': 'Segunda a sexta, 10h-12h',
+                'Saúde e Bem-estar': 'Terça a quinta, 15h-17h',
+                'Beleza e Estética': 'Quarta a sexta, 10h-12h',
+                'Alimentação': 'Segunda a quarta, 14h-16h'
+            };
+            return timingMap[category] || 'Segunda a sexta, 10h-12h e 14h-16h';
+        }
+
+        function showAIRecommendation(lead) {
+            alert(`🎯 NOVO LEAD IDENTIFICADO: ${lead.name}\n\n🤖 RECOMENDAÇÕES DA IA:\n\n1. CONTATO IMEDIATO: Priorize este lead nas próximas 48h\n2. ABORDAGEM: "${getContactApproach(lead.category).substring(0, 100)}..."\n3. ARGUMENTO-CHAVE: ${getKeyArguments(lead.category).split('\n')[0]}\n4. TIMING: ${getBestTiming(lead.category)}\n\n💡 DICA: Este lead tem ${lead.conversionProbability}% de probabilidade de conversão!`);
+        }
+
+        function showNotification(message, type = 'info') {
+            // Implementação simples de notificação
+            alert(`${type === 'success' ? '✅' : 'ℹ️'} ${message}`);
+        }
+
+        // Exportação de dados (simulada)
+        function exportLeads() {
+            const dataStr = JSON.stringify(leads, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'leads-plena-captacao.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+{
+  "name": "Simulador de Otimização do Windows",
+  "description": "Um aplicativo da web que simula um sistema semelhante ao Windows para gerenciar processos, memória e arquivos, projetado para fornecer uma experiência de otimização visualmente atraente e interativa.",
+  "requestFramePermissions": []
+}
