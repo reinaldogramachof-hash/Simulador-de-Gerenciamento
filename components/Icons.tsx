@@ -41,3 +41,10 @@ export const SchedulerIcon: React.FC<{ className?: string }> = ({ className }) =
     <path d="M8 6h8 M6 8v8 M8 18h8" strokeWidth="2" />
   </svg>
 )
+
+export const BookIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className={className || ''}>
+    <path d="M5 4h10a3 3 0 0 1 3 3v13l-5-2-5 2V7a3 3 0 0 1 3-3" strokeWidth="2" />
+    <path d="M5 4v16" strokeWidth="2" />
+  </svg>
+)

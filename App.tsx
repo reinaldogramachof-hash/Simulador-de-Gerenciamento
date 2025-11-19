@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Process, Tab, AppMode } from './types';
-import { ProcessorIcon, MemoryIcon, FolderIcon, BeakerIcon, BookOpenIcon, SchedulerIcon } from './components/Icons';
+import { ProcessorIcon, MemoryIcon, FolderIcon, BeakerIcon, BookOpenIcon, SchedulerIcon, BookIcon } from './components/Icons';
 import ProcessManager from './components/ProcessManager';
 import MemoryManager from './components/MemoryManager.tsx';
 
@@ -101,13 +101,21 @@ const App: React.FC = () => {
       <div className="w-full min-h-screen bg-slate-800 flex flex-col md:flex-row overflow-hidden border border-slate-700">
         <aside className="w-full md:w-64 md:min-w-[256px] bg-slate-850/50 md:bg-slate-850 md:p-5 border-t md:border-t-0 md:border-r border-slate-700/50 flex flex-col order-last md:order-first">
           <h1 className="text-xl font-bold text-white mb-8 hidden md:block px-2">Otimizador de Sistema</h1>
-          <nav className="flex md:flex-col justify-around md:justify-start h-full">
+          <nav className="flex md:flex-col justify-around md:justify-start flex-1">
             <NavItem tab="processes" icon={<ProcessorIcon />} label="Processos" />
             <NavItem tab="memory" icon={<MemoryIcon />} label="Memória" />
             <NavItem tab="files" icon={<FolderIcon />} label="Arquivos" />
             <NavItem tab="scheduler" icon={<SchedulerIcon />} label="Escalonador" />
-            <NavItem tab="learning" icon={<BookOpenIcon />} label="Aprendizado" />
+            <NavItem tab="learning" icon={<BookIcon />} label="Aprendizado" />
           </nav>
+          <div className="mt-auto md:mt-6 border-t border-slate-700 pt-4 px-3 text-slate-300">
+            <div className="text-xs md:text-sm font-semibold text-white">Informações</div>
+            <ul className="mt-2 text-xs md:text-sm list-disc pl-4 space-y-1">
+              <li>Desenvolvido por: Reinaldo Gramacho, Nivaldo Nunes, Raíke Vinícius, Lucas Gabriel</li>
+              <li>Matéria: Sistemas Operacionais</li>
+              <li>Professor: Daniel Dos Santos</li>
+            </ul>
+          </div>
         </aside>
         <main className="flex-grow p-4 sm:p-6 md:p-8 overflow-y-auto pb-24 md:pb-8 flex flex-col min-h-screen">
           <AnimatePresence mode="wait">
